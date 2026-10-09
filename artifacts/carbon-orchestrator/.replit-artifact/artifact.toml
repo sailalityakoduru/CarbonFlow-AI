@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Carbon-Aware AI Compute Orchestrator"
+description = "A working sustainability dashboard for scheduling AI and compute workloads against simulated carbon intensity, resource availability, deadlines, and latency across three regions."
+version = "1.0.0"
+id = "artifacts/carbon-orchestrator"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24351
+
+[services.development]
+run = "pnpm --filter @workspace/carbon-orchestrator run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/carbon-orchestrator", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/carbon-orchestrator/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24351"
+BASE_PATH = "/"

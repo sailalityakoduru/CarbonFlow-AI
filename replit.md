@@ -1,15 +1,17 @@
-# [Project name]
+# Carbon-Aware AI Compute Orchestrator
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A demo scheduling workspace that compares compute workload timing and regions using explainable carbon, deadline, latency, capacity, energy, and cost estimates.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/carbon-orchestrator run dev` — run the CarbonOps web app
+- `pnpm --filter @workspace/carbon-orchestrator run typecheck` — typecheck the web app
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `DATABASE_URL` is used by the separate API Server scaffold; CarbonOps does not require it or any external services.
 
 ## Stack
 
@@ -22,15 +24,21 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/carbon-orchestrator/src/lib/` — workload and region types, deterministic simulated data, scheduling calculations, and localStorage persistence
+- `artifacts/carbon-orchestrator/src/pages/` — dashboard, workload list/detail, carbon intelligence, scheduler, and strategy comparison
+- `artifacts/carbon-orchestrator/src/components/` — shared app shell, workload form, and reusable UI elements
+- `lib/api-spec/openapi.yaml` — API contract for the separate API Server scaffold; CarbonOps runs without a backend
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Workloads persist in the current browser's localStorage; no account or remote database is needed for the MVP.
+- Carbon intensity and regional capacity are deterministic simulated values labeled DEMO DATA; no live grid API is queried.
+- Candidate schedules are independent per workload; resource availability is not reserved or reconciled across concurrent jobs.
+- Baseline means the earliest feasible slot in Region A; carbon-aware means the lowest-emission feasible candidate, with short-wait/low-cost tie-breaking within 1%.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+CarbonOps provides a dashboard, workload CRUD and decision records, 24-hour simulated region forecasts, an explainable scheduler, and a calculated baseline-versus-optimized comparison.
 
 ## User preferences
 

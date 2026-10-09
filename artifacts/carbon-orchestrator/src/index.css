@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  --background: 210 24% 97%;
+  --foreground: 210 52% 19%;
+  --border: 211 22% 88%;
+  --input: 211 22% 88%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 52% 19%;
+  --primary: 210 54% 20%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 147 41% 94%;
+  --secondary-foreground: 154 67% 27%;
+  --muted: 210 25% 95%;
+  --muted-foreground: 211 13% 48%;
+  --accent: 170 61% 91%;
+  --accent-foreground: 174 62% 26%;
+  --destructive: 2 72% 52%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 170 61% 42%;
+  --chart-1: 153 69% 31%;
+  --chart-2: 172 61% 40%;
+  --chart-3: 210 54% 28%;
+  --chart-4: 39 89% 54%;
+  --chart-5: 2 72% 52%;
+  --sidebar: 210 54% 20%;
+  --sidebar-foreground: 210 30% 92%;
+  --sidebar-border: 210 41% 30%;
+  --sidebar-primary: 158 67% 42%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 44% 26%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 52% 19%;
+  --radius: 0.7rem;
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-display: 'Manrope', sans-serif;
+  --app-font-mono: 'DM Mono', monospace;
+}
+
+.dark {
+  --background: 210 40% 10%;
+  --foreground: 210 24% 94%;
+  --border: 210 26% 25%;
+  --input: 210 26% 25%;
+  --card: 210 35% 13%;
+  --card-foreground: 210 24% 94%;
+  --primary: 157 58% 43%;
+  --primary-foreground: 210 54% 12%;
+  --secondary: 210 30% 19%;
+  --secondary-foreground: 150 55% 76%;
+  --muted: 210 30% 18%;
+  --muted-foreground: 210 15% 68%;
+  --accent: 174 35% 20%;
+  --accent-foreground: 171 54% 77%;
+  --destructive: 2 65% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 170 61% 48%;
+  --chart-1: 153 69% 45%;
+  --chart-2: 172 61% 50%;
+  --chart-3: 210 54% 55%;
+  --chart-4: 39 89% 58%;
+  --chart-5: 2 72% 58%;
+  --sidebar: 210 48% 12%;
+  --sidebar-foreground: 210 30% 92%;
+  --sidebar-border: 210 35% 24%;
+  --sidebar-primary: 158 67% 42%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 38% 21%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --popover: 210 35% 13%;
+  --popover-foreground: 210 24% 94%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; font-family: var(--app-font-sans); }
+  button, input, select, textarea { font: inherit; }
+}
+
+.font-display { font-family: var(--app-font-display); }
+.font-mono { font-family: var(--app-font-mono); }
+.shell { min-height: 100dvh; }
+.sidebar { background: #17324D; }
+.soft-grid { background-image: linear-gradient(to right, rgba(23,50,77,.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(23,50,77,.035) 1px, transparent 1px); background-size: 32px 32px; }
+.page-enter { animation: rise-in .35s ease-out both; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.status-dot { width: 7px; height: 7px; border-radius: 99px; display: inline-block; }
+.demo-ribbon { background: #fff5df; color: #805614; border: 1px solid #f2dda9; }
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: #bdcbd5 transparent; }
+::selection { background: #c8e9dc; color: #17324D; }
