@@ -5,7 +5,7 @@ import { CartesianGrid, Area, AreaChart, Bar, BarChart, Cell, Line, ResponsiveCo
 import { getRegionForecasts } from '../lib/simulated-data';
 import { calculateDashboardMetrics, compareWorkloads, scheduleWorkload } from '../lib/scheduler';
 import { useWorkloads } from '../state/workload-context';
-import { Button, DemoLabel, EmptyState, LinkButton, Metric, PageTitle, Panel, PanelHeading, RelativeTime, StatusBadge } from '../components/ui-kit';
+import { Button, EmptyState, LinkButton, Metric, PageTitle, Panel, PanelHeading, RelativeTime, StatusBadge } from '../components/ui-kit';
 
 export default function DashboardPage() {
   const { workloads } = useWorkloads();
@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const reduction = comparison.reductionPercent;
 
   return <div>
-    <PageTitle eyebrow="Workspace / Overview" title="Compute, with a lighter footprint." description="A traceable view of what is running, what it costs, and where cleaner compute is available." action={<DemoLabel />} />
+    <PageTitle eyebrow="Workspace / Overview" title="Compute, with a lighter footprint." description="A traceable view of what is running, what it costs, and where cleaner compute is available." />
     <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Metric label="Tracked workloads" value={String(metrics.totalWorkloads)} sub={`${metrics.pending} pending · ${metrics.running} active`} icon={<Activity size={18} />} testId="metric-total-workloads" />
       <Metric label="Projected emissions" value={`${(metrics.estimatedEmissionsGrams / 1000).toFixed(2)} kg`} sub={`${metrics.totalEnergyKwh.toFixed(1)} kWh modeled energy`} icon={<Factory size={18} />} accent="blue" testId="metric-estimated-emissions" hint="CO₂e is estimated as energy consumption (kWh) × grid carbon intensity (gCO₂e/kWh). Energy is average power (kW) × runtime in hours." />

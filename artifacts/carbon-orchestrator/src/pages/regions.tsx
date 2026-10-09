@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Cpu, DollarSign, HardDrive, Network, Server, Wind } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { getRegionForecasts } from '../lib/simulated-data';
-import { DemoLabel, Notice, PageTitle, Panel, PanelHeading } from '../components/ui-kit';
+import { Notice, PageTitle, Panel, PanelHeading } from '../components/ui-kit';
 
 export default function RegionsPage() {
   const forecasts = useMemo(() => getRegionForecasts(), []);
@@ -22,7 +22,7 @@ export default function RegionsPage() {
   const regionColors = ['#18845B', '#27A69A', '#6689a2'];
 
   return <div>
-    <PageTitle eyebrow="Signals / Regions" title="Carbon intelligence" description="A simulated view of regional carbon conditions, compute capacity, network latency, and energy price." action={<DemoLabel />} />
+    <PageTitle eyebrow="Signals / Regions" title="Carbon intelligence" description="A simulated view of regional carbon conditions, compute capacity, network latency, and energy price." />
     <Notice tone="warning"><span>All regional measurements are simulated demo values. Capacity is per-job availability, not a shared reservation pool.</span></Notice>
     <div className="mt-4 grid gap-3 xl:grid-cols-3">
       {forecasts.map((region, index) => <button key={region.id} onClick={() => setSelected(region.id)} className={`rounded-xl border p-4 text-left transition-all ${selected === region.id ? 'border-[#18845B] bg-[#f2faf6] shadow-[0_0_0_2px_rgba(24,132,91,.08)]' : 'border-[#e0e7eb] bg-white hover:border-[#a9c8bb]'}`} data-testid={`card-region-${region.id}`}>

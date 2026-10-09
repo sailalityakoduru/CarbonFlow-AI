@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Activity, BarChart3, ChevronDown, Cpu, Gauge, Leaf, Menu, Network, Plus, RotateCcw, Trash2, X } from 'lucide-react';
-import { DemoLabel, Button } from './ui-kit';
+import { Activity, BarChart3, Cpu, Gauge, Leaf, Menu, Network, Plus, X } from 'lucide-react';
+import { Button } from './ui-kit';
 import { useWorkloads } from '../state/workload-context';
 import WorkloadForm from './workload-form';
 import type { Workload } from '../lib/types';
@@ -16,11 +16,9 @@ const navItems = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { workloads, addWorkload, loadDemoData, resetDemo, removeDemoWorkloads } = useWorkloads();
+  const { workloads, addWorkload } = useWorkloads();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
   const submit = (data: Omit<Workload, 'id' | 'createdAt'>) => {
     addWorkload(data);
     setFormOpen(false);
@@ -30,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="px-5 pb-7 pt-6">
       <Link href="/dashboard" className="flex items-center gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#18845B] text-white shadow-lg shadow-black/10"><Network size={21} /></span>
-        <span><span className="block font-display text-[15px] font-extrabold leading-tight text-white">CarbonOps</span><span className="mt-1 block text-[10px] font-semibold tracking-[.13em] text-[#9cb2c1]">COMPUTE ORCHESTRATOR</span></span>
+        <span><span className="block font-display text-[15px] font-extrabold leading-tight text-white">CarbonFlow AI</span><span className="mt-1 block text-[10px] font-semibold tracking-[.13em] text-[#9cb2c1]">COMPUTE ORCHESTRATOR</span></span>
       </Link>
     </div>
     <div className="px-4 pb-2 text-[9px] font-bold uppercase tracking-[.18em] text-[#8fa5b5]">Operations</div>
@@ -41,12 +39,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       })}
     </nav>
     <div className="mt-auto border-t border-white/10 p-4">
-      <button onClick={() => setToolsOpen((open) => !open)} className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs font-semibold text-[#c4d1da] hover:bg-[#203e56]" data-testid="button-demo-tools"><span className="flex items-center gap-2"><RotateCcw size={14} />Demo data tools</span><ChevronDown size={14} className={toolsOpen ? 'rotate-180' : ''} /></button>
-      {toolsOpen && <div className="mt-1 grid gap-1 pl-2">
-        <button onClick={() => { loadDemoData(); setToolsOpen(false); }} className="rounded-md px-3 py-2 text-left text-xs text-[#d9e5eb] hover:bg-[#203e56]" data-testid="button-load-demo">Load demo data</button>
-        <button onClick={() => { removeDemoWorkloads(); setToolsOpen(false); }} className="rounded-md px-3 py-2 text-left text-xs text-[#d9e5eb] hover:bg-[#203e56]" data-testid="button-remove-sample">Remove sample jobs</button>
-        <button onClick={() => setConfirmReset(true)} className="rounded-md px-3 py-2 text-left text-xs text-[#ffb8aa] hover:bg-[#203e56]" data-testid="button-reset-demo">Reset demo</button>
-      </div>}
       <div className="mt-4 flex items-center justify-between rounded-lg bg-[#112a40] px-3 py-3">
         <div><p className="text-[11px] font-bold text-white">Local simulation</p><p className="mt-1 text-[10px] text-[#a9bdc9]">{workloads.length} workload records</p></div>
         <span className="status-dot bg-[#59c894]" />
@@ -59,12 +51,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     {mobileOpen && <div className="fixed inset-0 z-50 md:hidden"><button aria-label="Close navigation overlay" className="absolute inset-0 bg-[#10283b]/50" onClick={() => setMobileOpen(false)} /><aside className="sidebar absolute inset-y-0 left-0 w-[280px] shadow-2xl">{nav}<button onClick={() => setMobileOpen(false)} className="absolute right-3 top-4 rounded p-2 text-white" aria-label="Close menu"><X size={18} /></button></aside></div>}
     <main className="min-w-0 flex-1 md:ml-[248px]">
       <header className="sticky top-0 z-30 flex h-[66px] items-center justify-between border-b border-[#e3e9ed] bg-[#f9fbfc]/95 px-4 backdrop-blur sm:px-7">
-        <div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="rounded-lg border border-[#dce5e9] bg-white p-2 text-[#29475d] md:hidden" aria-label="Open menu" data-testid="button-mobile-menu"><Menu size={18} /></button><div className="hidden text-xs text-[#718391] sm:block">Operations workspace <span className="mx-1.5 text-[#b9c6ce]">/</span><span className="font-semibold text-[#28465d]">{navItems.find((item) => item.href === location || (location === '/' && item.href === '/dashboard'))?.label ?? 'Workloads'}</span></div><div className="sm:hidden font-display text-sm font-bold text-[#17324D]">CarbonOps</div></div>
-        <div className="flex items-center gap-3"><DemoLabel /><Button onClick={() => setFormOpen(true)} className="min-h-9 px-3 text-xs" data-testid="button-create-workload"><Plus size={15} /><span className="hidden sm:inline">New workload</span><span className="sm:hidden">New</span></Button></div>
+        <div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="rounded-lg border border-[#dce5e9] bg-white p-2 text-[#29475d] md:hidden" aria-label="Open menu" data-testid="button-mobile-menu"><Menu size={18} /></button><div className="hidden text-xs text-[#718391] sm:block">Operations workspace <span className="mx-1.5 text-[#b9c6ce]">/</span><span className="font-semibold text-[#28465d]">{navItems.find((item) => item.href === location || (location === '/' && item.href === '/dashboard'))?.label ?? 'Workloads'}</span></div><div className="sm:hidden font-display text-sm font-bold text-[#17324D]">CarbonFlow AI</div></div>
+        <div className="flex items-center gap-3"><Button onClick={() => setFormOpen(true)} className="min-h-9 px-3 text-xs" data-testid="button-create-workload"><Plus size={15} /><span className="hidden sm:inline">New workload</span><span className="sm:hidden">New</span></Button></div>
       </header>
       <div className="mx-auto max-w-[1480px] px-4 py-6 sm:px-7 sm:py-8 page-enter">{children}</div>
     </main>
     {formOpen && <WorkloadForm title="Create workload" onClose={() => setFormOpen(false)} onSubmit={submit} />}
-    {confirmReset && <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#10283b]/45 p-4"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"><h2 className="font-display text-lg font-bold text-[#17324D]">Reset demo workspace?</h2><p className="mt-2 text-sm leading-6 text-[#718391]">This replaces all current records, including user-created workloads, with the five sample jobs. This cannot be undone.</p><div className="mt-6 flex justify-end gap-2"><Button variant="secondary" onClick={() => setConfirmReset(false)} data-testid="button-cancel-reset">Cancel</Button><Button variant="danger" onClick={() => { resetDemo(); setConfirmReset(false); }} data-testid="button-confirm-reset"><Trash2 size={15} />Reset workspace</Button></div></div></div>}
   </div>;
 }

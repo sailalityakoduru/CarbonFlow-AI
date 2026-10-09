@@ -1,7 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useLocation, useParams } from 'wouter';
 import { ArrowLeft, CalendarClock, CheckCircle2, Clock3, Pencil, RefreshCw, Trash2, Zap } from 'lucide-react';
+import { Form } from '@/components/ui/form';
+import { toast } from '@/hooks/use-toast';
 import { scheduleWorkload } from '../lib/scheduler';
+import { addWorkloadFeedback, loadWorkloadFeedback, type WorkloadFeedback } from '../lib/feedback-storage';
 import type { ScheduleCandidate, Workload } from '../lib/types';
 import { useWorkloads } from '../state/workload-context';
 import { Button, LinkButton, Modal, Notice, PageTitle, Panel, PanelHeading, RelativeTime, Select, SmallCheck, StatusBadge } from '../components/ui-kit';
@@ -9,6 +13,7 @@ import WorkloadForm from '../components/workload-form';
 
 const fmt = (value: number, digits = 1) => Number.isFinite(value) ? value.toFixed(digits) : '—';
 const dateFmt = (value: string) => new Date(value).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+type FeedbackFormValues = { message: string };
 
 function CandidateCard({ title, candidate }: { title: string; candidate: ScheduleCandidate | null }) {
   return <Panel className="overflow-hidden">
@@ -30,13 +35,45 @@ export default function WorkloadDetailPage() {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [recomputedAt, setRecomputedAt] = useState(new Date());
+  const [feedbackItems, setFeedbackItems] = useState<WorkloadFeedback[]>([]);
+  const [feedbackLoaded, setFeedbackLoaded] = useState(false);
+  const [feedbackError, setFeedbackError] = useState('');
+  const feedbackForm = useForm<FeedbackFormValues>({ defaultValues: { message: '' } });
   const schedule = useMemo(() => workload ? scheduleWorkload(workload, undefined, recomputedAt) : null, [workload, recomputedAt]);
+  useEffect(() => {
+    setFeedbackLoaded(false);
+    try {
+      setFeedbackItems(loadWorkloadFeedback(params.id));
+      setFeedbackError('');
+    } catch (error) {
+      setFeedbackItems([]);
+      setFeedbackError(error instanceof Error ? error.message : 'Unable to load workload feedback.');
+    }
+    setFeedbackLoaded(true);
+  }, [params.id]);
   if (!workload || !schedule) return <Panel><div className="p-8"><Notice tone="error">This workload could not be found in the local workspace.</Notice><div className="mt-4"><LinkButton href="/workloads">Return to workloads</LinkButton></div></div></Panel>;
 
   const update = (data: Omit<Workload, 'id' | 'createdAt'>) => {
     updateWorkload({ ...workload, ...data, id: workload.id, createdAt: workload.createdAt });
     setEditing(false);
     setRecomputedAt(new Date());
+  };
+  const submitFeedback = (values: FeedbackFormValues) => {
+    const message = values.message.trim();
+    if (!message) {
+      feedbackForm.setError('message', { type: 'manual', message: 'Write feedback before submitting.' });
+      return;
+    }
+
+    try {
+      const savedFeedback = addWorkloadFeedback(workload.id, message);
+      setFeedbackItems((current) => [...current, savedFeedback]);
+      setFeedbackError('');
+      feedbackForm.reset({ message: '' });
+      toast({ title: 'Feedback submitted', description: 'Your feedback is saved for this workload in this browser.' });
+    } catch (error) {
+      setFeedbackError(error instanceof Error ? error.message : 'Unable to save workload feedback.');
+    }
   };
   const selectedConstraints = schedule.selected?.constraints ?? schedule.candidates[0]?.constraints ?? [];
 
@@ -64,6 +101,40 @@ export default function WorkloadDetailPage() {
     <Panel className="mt-4 overflow-hidden"><PanelHeading title="Constraint checks" detail={schedule.selected ? 'Checks for the selected candidate' : 'Checks from the closest candidate; no candidate is feasible'} action={<span className="text-xs font-semibold text-[#718391]">{selectedConstraints.filter((item) => item.passed).length}/{selectedConstraints.length} passed</span>} />
       {selectedConstraints.length ? <div className="grid gap-0 divide-y divide-[#edf0f2] sm:grid-cols-2 sm:divide-y-0">{selectedConstraints.map((constraint, index) => <div key={constraint.label} className={`flex items-start gap-3 px-5 py-3.5 ${index % 2 ? 'sm:border-l sm:border-[#edf0f2]' : ''} ${index > 1 ? 'sm:border-t sm:border-[#edf0f2]' : ''}`}><SmallCheck passed={constraint.passed} /><div><p className="text-xs font-bold text-[#35536a]">{constraint.label}</p><p className="mt-1 text-xs leading-5 text-[#82919b]">{constraint.detail}</p></div></div>)}</div> : <div className="p-5"><Notice tone="warning">No eligible candidate checks are available.</Notice></div>}
     </Panel>
+    <div className="mt-4" data-testid={`section-workload-feedback-${workload.id}`}>
+      <Panel className="overflow-hidden">
+        <PanelHeading title="Workload feedback" detail="Feedback is saved in this browser and tied to this workload." action={<span className="text-xs font-semibold text-[#718391]">{feedbackItems.length} submitted</span>} />
+        <Form {...feedbackForm}>
+          <form onSubmit={feedbackForm.handleSubmit(submitFeedback)} className="grid gap-3 p-5">
+            <label htmlFor="workload-feedback-message" className="text-xs font-semibold text-[#35536a]">Share feedback about this workload</label>
+            <textarea
+              id="workload-feedback-message"
+              {...feedbackForm.register('message')}
+              rows={4}
+              maxLength={1000}
+              placeholder="What should be changed or improved?"
+              aria-label={`Feedback for ${workload.name}`}
+              aria-describedby={feedbackForm.formState.errors.message ? 'workload-feedback-error' : undefined}
+              aria-invalid={Boolean(feedbackForm.formState.errors.message)}
+              className="w-full resize-y rounded-lg border border-[#d8e1e7] bg-white px-3 py-2.5 text-sm text-[#28465d] outline-none placeholder:text-[#9aa9b2] focus:border-[#18845B] focus:ring-2 focus:ring-[#18845B]/10"
+              data-testid="input-workload-feedback"
+            />
+            {feedbackForm.formState.errors.message && <p id="workload-feedback-error" role="alert" className="text-xs text-[#b3362d]">{feedbackForm.formState.errors.message.message}</p>}
+            {feedbackError && <Notice tone="error"><span>{feedbackError}</span></Notice>}
+            <div className="flex justify-end">
+              <Button type="submit" disabled={!feedbackLoaded || !feedbackForm.watch('message').trim()} data-testid="button-submit-workload-feedback">Send feedback</Button>
+            </div>
+          </form>
+        </Form>
+        {feedbackItems.length > 0 && <div className="border-t border-[#edf0f2] px-5 py-4">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#82919b]">Submitted feedback</h3>
+          <ul className="grid gap-2">{feedbackItems.map((item) => <li key={item.id} className="rounded-lg bg-[#f5f8f9] px-3 py-2.5" data-testid={`feedback-entry-${item.id}`}>
+            <p className="whitespace-pre-wrap text-sm leading-5 text-[#35536a]">{item.message}</p>
+            <time className="mt-1 block text-[10px] text-[#82919b]" dateTime={item.submittedAt}>{new Date(item.submittedAt).toLocaleString()}</time>
+          </li>)}</ul>
+        </div>}
+      </Panel>
+    </div>
     <Notice tone="info"><span><strong>Independent capacity model.</strong> CPU, GPU, and memory availability are simulated per job. Workloads are scheduled independently and do not reserve shared capacity.</span></Notice>
     <div className="mt-3 flex items-center gap-2 text-xs text-[#8796a0]"><Clock3 size={13} />Last recomputed <RelativeTime value={recomputedAt.toISOString()} /></div>
     {editing && <WorkloadForm title="Edit or reschedule workload" initial={workload} onClose={() => setEditing(false)} onSubmit={update} />}

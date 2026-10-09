@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, Cell, Legend, ResponsiveContainer, Toolti
 import { compareWorkloads } from '../lib/scheduler';
 import { REGIONS } from '../lib/simulated-data';
 import { useWorkloads } from '../state/workload-context';
-import { DemoLabel, EmptyState, Metric, Notice, PageTitle, Panel, PanelHeading } from '../components/ui-kit';
+import { EmptyState, Metric, Notice, PageTitle, Panel, PanelHeading } from '../components/ui-kit';
 
 const fmt = (number: number) => number.toLocaleString(undefined, { maximumFractionDigits: 1 });
 
@@ -24,7 +24,7 @@ export default function ComparisonPage() {
   }).sort((a, b) => (a.optimized?.executionAt ?? a.workload.deadline).localeCompare(b.optimized?.executionAt ?? b.workload.deadline));
 
   return <div>
-    <PageTitle eyebrow="Analysis / Strategy" title="Baseline vs carbon-aware" description="Compare feasible default-region execution against the lowest-emission schedule that satisfies each workload's constraints." action={<DemoLabel />} />
+    <PageTitle eyebrow="Analysis / Strategy" title="Baseline vs carbon-aware" description="Compare feasible default-region execution against the lowest-emission schedule that satisfies each workload's constraints." />
     {!workloads.length ? <Panel><EmptyState title="No comparison data yet" detail="Add workloads to calculate baseline and carbon-aware strategy outcomes." /></Panel> : <>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric label="Baseline emissions" value={`${(comparison.baselineEmissionsGrams / 1000).toFixed(2)} kg`} sub="Immediate default-region feasible jobs" icon={<Factory size={18} />} accent="blue" testId="comparison-baseline-emissions" />
